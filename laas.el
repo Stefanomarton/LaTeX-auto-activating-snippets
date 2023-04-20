@@ -413,16 +413,16 @@ ab/ => \\frac{ab}{}
 (defvar laas-accent-snippets
   `(;; work in both normal latex text and math
     :cond laas-latex-accent-cond
-    :expansion-desc "Wrap in \\mathrm{} or \\textrm{}"     "'r" laas-accent--rm
-    :expansion-desc "Wrap in \\mathit{} or \\textit{}"     "'i" laas-accent--it
-    :expansion-desc "Wrap in \\mathbf{} or \\textbf{}"     "'b" laas-accent--bf
-    :expansion-desc "Wrap in \\mathemph{} or \\textemph{}" "'e" laas-accent--emph
-    :expansion-desc "Wrap in \\mathtt{} or \\texttt{}"     "'y" laas-accent--tt
-    :expansion-desc "Wrap in \\mathsf{} or \\textsf{}"     "'f" laas-accent--sf
+    :expansion-desc "Wrap in \\mathrm{} or \\textrm{}"     "''r" laas-accent--rm
+    :expansion-desc "Wrap in \\mathit{} or \\textit{}"     "''i" laas-accent--it
+    :expansion-desc "Wrap in \\mathbf{} or \\textbf{}"     "''b" laas-accent--bf
+    :expansion-desc "Wrap in \\mathemph{} or \\textemph{}" "''e" laas-accent--emph
+    :expansion-desc "Wrap in \\mathtt{} or \\texttt{}"     "''y" laas-accent--tt
+    :expansion-desc "Wrap in \\mathsf{} or \\textsf{}"     "''f" laas-accent--sf
     ;; only normal latex text, no math
     :cond (lambda () (and (derived-mode-p 'latex-mode) (not (laas-mathp))))
     :expansion-desc "Wrap in \\textsl"
-    "'l" (lambda () (interactive) (laas-wrap-previous-object "textsl"))
+    "''l" (lambda () (interactive) (laas-wrap-previous-object "textsl"))
     ;; only math
     :cond laas-object-on-left-condition
     ,@(cl-loop for (key . exp)
@@ -441,7 +441,7 @@ ab/ => \\frac{ab}{}
                     ("'/" . "grave")
                     ("'\"". "acute")
                     ("'v" . "check")
-                    ("'u" . "breve")
+                    ("''u" . "breve")
                     ("'m" . "mbox")
                     ("'c" . "mathcal")
                     ("'0" . ("{\\textstyle " . "}"))
