@@ -9,7 +9,7 @@
 ;; Version: 1.1
 ;; Keywords: tools, tex
 ;; Homepage: https://github.com/tecosaur/LaTeX-auto-activating-snippets
-;; Package-Requires: ((emacs "26.3") (auctex "11.88") (aas "1.1") (yasnippet "0.14"))
+;; Package-Requires: ((emacs "26.3") (auctex "11.88") (aas "1.1"))
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 ;;
 ;; This file is not part of GNU Emacs.
@@ -24,7 +24,9 @@
 
 (require 'aas)
 (require 'texmathp)
-(require 'yasnippet)
+
+(declare-function yas-expand-snippet "yasnippet")
+(declare-function tempel-insert "tempel")
 
 (defgroup laas nil
   "LaTeX snippets that expand mid-typing."
@@ -144,7 +146,7 @@ and is expected to return a string or cons."
      (t
       (message "Wrong type of `tex-cmd' given to `laas-wrap-previous-object'.")))
     ;; wrap
-    (when left
+    (when (and left start)
       (insert right)
       (save-excursion
         (goto-char start)
@@ -193,7 +195,13 @@ it is restored only once."
   (pcase aas-transient-snippet-condition-result
     ('standalone-frac
      (delete-char -1) ;; delete the previous / that isn't part of the key
-     (yas-expand-snippet "\\frac{$1}{$2}$0"))
+     (cond
+      ((featurep 'tempel)
+       (tempel-insert (list "\\frac{" 'p "}{" 'p "}")))
+      ((featurep 'yasnippet)
+       (yas-expand-snippet "\\frac{$1}{$2}$0"))
+      (t (insert "\\frac{}{}")
+         (forward-char -3))))
     ('wrapping-frac
      (let* ((tex-obj (laas-identify-adjacent-tex-object))
             (start (save-excursion
@@ -207,9 +215,16 @@ it is restored only once."
                      (point)))
             (end (point))
             (content (buffer-substring-no-properties start end)))
-       (yas-expand-snippet (format "\\frac{%s}{$1}$0" content)
-                           start end))))
-  (laas--shut-up-smartparens))
+       (delete-region start end)
+       (cond
+        ((featurep 'tempel)
+         (tempel-insert (list "\\frac{" content "}{" 'p "}")))
+        ((featurep 'yasnippet)
+         (yas-expand-snippet (format "\\frac{%s}{$2}$0" content)))
+        (t (insert "\\frac{" content "}{}")
+           (forward-char -1))))))
+  (when (featurep 'smartparens)
+    (laas--shut-up-smartparens)))
 
 (defvar laas-basic-snippets
   '(:cond laas-mathp
